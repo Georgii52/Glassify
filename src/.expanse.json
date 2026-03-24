@@ -1,0 +1,384 @@
+{
+  "objects": {
+    "ac1989e3-3b71-49e2-a05f-e682aeb18c36": {
+      "components": {},
+      "geometry": null,
+      "id": "ac1989e3-3b71-49e2-a05f-e682aeb18c36",
+      "light": {
+        "intensity": 1,
+        "type": "directional"
+      },
+      "material": null,
+      "name": "Directional Light",
+      "position": [
+        20,
+        20,
+        10
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864",
+      "order": 0.6644431107322474,
+      "hidden": false
+    },
+    "95f54349-f85a-4949-90c1-fc1e8e4c54e3": {
+      "id": "95f54349-f85a-4949-90c1-fc1e8e4c54e3",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": {
+        "type": "basic",
+        "color": "#FFFFFF"
+      },
+      "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864",
+      "components": {},
+      "face": {
+        "id": 1,
+        "addAttachmentState": false
+      },
+      "name": "Face",
+      "order": 2.8992156533500673
+    },
+    "5fb636c8-6f48-4636-9064-30ffaa166571": {
+      "id": "5fb636c8-6f48-4636-9064-30ffaa166571",
+      "position": [
+        -0.02,
+        -0.7,
+        0.06381199371111357
+      ],
+      "rotation": [
+        0,
+        -1.2246467991473532e-16,
+        -1.2246467991473532e-16,
+        1
+      ],
+      "scale": [
+        0.0022,
+        0.0022,
+        0.0022
+      ],
+      "geometry": null,
+      "material": {
+        "type": "basic",
+        "color": "#FFFFFF"
+      },
+      "parentId": "95f54349-f85a-4949-90c1-fc1e8e4c54e3",
+      "components": {
+        "a2401797-e2b7-42f9-8c39-9b7705c0e333": {
+          "id": "a2401797-e2b7-42f9-8c39-9b7705c0e333",
+          "name": "follow-animation",
+          "parameters": {
+            "target": {
+              "type": "entity",
+              "id": "bf9a3ec2-4b4a-4b52-9f69-ece8265fb202"
+            },
+            "maxDistance": 1
+          }
+        }
+      },
+      "gltfModel": {
+        "src": {
+          "type": "asset",
+          "asset": "assets/glasses3.glb"
+        },
+        "animationClip": "",
+        "loop": true
+      },
+      "name": "glasses3.glb",
+      "order": 2.7567618738551642,
+      "shadow": {
+        "receiveShadow": true,
+        "castShadow": true
+      },
+      "hidden": true
+    },
+    "9b7c1e94-127a-4820-97d8-19e2bb7703f7": {
+      "id": "9b7c1e94-127a-4820-97d8-19e2bb7703f7",
+      "position": [
+        1.4083380578399614,
+        1.186165115272624,
+        3.7935057585001704
+      ],
+      "rotation": [
+        -0.032599317476011073,
+        0.9658928835578591,
+        -0.15211029906014226,
+        -0.20700405530379457
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "88453035-dc0f-486d-868a-8ff7c2fda864",
+      "components": {},
+      "name": "Camera (2)",
+      "camera": {
+        "type": "perspective",
+        "xr": {
+          "xrCameraType": "face",
+          "phone": "AR",
+          "desktop": "AR",
+          "headset": "disabled",
+          "face": {
+            "meshGeometryFace": true,
+            "meshGeometryEyes": true,
+            "meshGeometryIris": true,
+            "meshGeometryMouth": true,
+            "enableEars": true,
+            "mirroredDisplay": true,
+            "maxDetections": 1
+          },
+          "direction": "front"
+        },
+        "fov": 90,
+        "nearClip": 0.1,
+        "farClip": 2000
+      },
+      "order": 8.444903326675774
+    },
+    "bf9a3ec2-4b4a-4b52-9f69-ece8265fb202": {
+      "id": "bf9a3ec2-4b4a-4b52-9f69-ece8265fb202",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": {
+        "type": "face",
+        "id": 1
+      },
+      "material": {
+        "type": "hider"
+      },
+      "parentId": "95f54349-f85a-4949-90c1-fc1e8e4c54e3",
+      "components": {
+        "ed712784-e415-4912-8fb8-16f45762013c": {
+          "id": "ed712784-e415-4912-8fb8-16f45762013c",
+          "name": "face-mesh-anchor",
+          "parameters": {}
+        }
+      },
+      "name": "Face Mesh",
+      "order": 4.755371304906329,
+      "shadow": {
+        "receiveShadow": true,
+        "castShadow": true
+      }
+    },
+    "3fd56308-f385-41ee-b6ec-579d90bf41cc": {
+      "id": "3fd56308-f385-41ee-b6ec-579d90bf41cc",
+      "position": [
+        0.0056712094476610445,
+        -0.11383718379473293,
+        0.6101868836102102
+      ],
+      "rotation": [
+        -0.07493205555730824,
+        0,
+        0,
+        0.9971886416571122
+      ],
+      "scale": [
+        0.23194620237844515,
+        0.3770685375678092,
+        0.2964116179479447
+      ],
+      "geometry": {
+        "type": "cone",
+        "radius": 0.5,
+        "height": 1
+      },
+      "material": {
+        "type": "hider"
+      },
+      "parentId": "95f54349-f85a-4949-90c1-fc1e8e4c54e3",
+      "components": {
+        "5f2a8e15-2d1a-4cec-b97e-6e7a928eb752": {
+          "id": "5f2a8e15-2d1a-4cec-b97e-6e7a928eb752",
+          "name": "face-attachment",
+          "parameters": {
+            "point": "noseBridge"
+          }
+        }
+      },
+      "name": "noseBridge",
+      "order": 6.2364415902908314
+    },
+    "01e7ff6d-45c5-4da4-9cc5-2ab29472d1fe": {
+      "id": "01e7ff6d-45c5-4da4-9cc5-2ab29472d1fe",
+      "position": [
+        0.727,
+        -0.235,
+        -0.131
+      ],
+      "rotation": [
+        0.05338003638430958,
+        0,
+        0,
+        0.9985742695040815
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": {
+        "type": "plane",
+        "width": 0.6,
+        "height": 0.6
+      },
+      "material": {
+        "type": "hider"
+      },
+      "parentId": "95f54349-f85a-4949-90c1-fc1e8e4c54e3",
+      "components": {
+        "002edfb0-9b0d-416a-91c7-4060cc87d539": {
+          "id": "002edfb0-9b0d-416a-91c7-4060cc87d539",
+          "name": "face-attachment",
+          "parameters": {
+            "point": "leftCanal"
+          }
+        }
+      },
+      "name": "leftCanal",
+      "order": 7.474766670184972
+    },
+    "538561ff-d232-4a7c-9198-396c228cf9c9": {
+      "id": "538561ff-d232-4a7c-9198-396c228cf9c9",
+      "position": [
+        -0.7271605630359629,
+        -0.23528587091390196,
+        -0.1305091232061386
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "geometry": {
+        "type": "plane",
+        "width": 0.6,
+        "height": 0.6
+      },
+      "material": {
+        "type": "hider"
+      },
+      "parentId": "95f54349-f85a-4949-90c1-fc1e8e4c54e3",
+      "components": {
+        "07192c01-0bcb-4d82-a4c5-e01a76b746e8": {
+          "id": "07192c01-0bcb-4d82-a4c5-e01a76b746e8",
+          "name": "face-attachment",
+          "parameters": {
+            "point": "rightCanal"
+          }
+        }
+      },
+      "name": "rightCanal",
+      "order": 10.077553825986165,
+      "shadow": {
+        "castShadow": true,
+        "receiveShadow": true
+      }
+    },
+    "b58bb468-59d2-4389-ad1e-d4d22f493544": {
+      "id": "b58bb468-59d2-4389-ad1e-d4d22f493544",
+      "position": [
+        -0.01,
+        0.049303881335093086,
+        0.0369342911609067
+      ],
+      "rotation": [
+        0.04650484306359841,
+        2.5545903083883143e-20,
+        2.714630494546414e-18,
+        0.998918064493595
+      ],
+      "scale": [
+        9.000000000000002,
+        8.000000000000002,
+        7.999999999999999
+      ],
+      "geometry": null,
+      "material": null,
+      "parentId": "95f54349-f85a-4949-90c1-fc1e8e4c54e3",
+      "components": {},
+      "gltfModel": {
+        "src": {
+          "type": "asset",
+          "asset": "assets/glasses.glb"
+        },
+        "animationClip": "",
+        "loop": true
+      },
+      "name": "glasses.glb",
+      "order": 12.014322551186467,
+      "hidden": false
+    }
+  },
+  "spaces": {
+    "88453035-dc0f-486d-868a-8ff7c2fda864": {
+      "id": "88453035-dc0f-486d-868a-8ff7c2fda864",
+      "name": "Default",
+      "activeCamera": "9b7c1e94-127a-4820-97d8-19e2bb7703f7",
+      "reflections": {
+        "type": "url",
+        "url": "https://cdn.8thwall.com/web/assets/envmap/studio_small_08_1k-m89fuwlx.hdr"
+      },
+      "fog": null,
+      "sky": {
+        "type": "none"
+      }
+    }
+  },
+  "entrySpaceId": "88453035-dc0f-486d-868a-8ff7c2fda864",
+  "runtimeVersion": {
+    "type": "version",
+    "level": "major",
+    "major": 2,
+    "minor": 0,
+    "patch": 0
+  }
+}
