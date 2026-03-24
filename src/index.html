@@ -23,6 +23,45 @@
 <body>
 <script src="bundle.js"></script>
 
+<div id="model-switcher">
+  <button class="model-btn active" onclick="selectModel('glasses.glb', this)">
+    <span>1</span>
+  </button>
+  <button class="model-btn" onclick="selectModel('glasses3.glb', this)">
+    <span>2</span>
+  </button>
+</div>
+
+<style>
+  #model-switcher {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 9999;
+  }
+  .model-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.4);
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 18px;
+    font-family: sans-serif;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .model-btn.active {
+    border-color: #fff;
+    background: rgba(255,255,255,0.25);
+  }
+</style>
+
 <script>
 // DEBUG = true: показывает occluder цветом (красный = лицо, синий = панели)
 const DEBUG = false
@@ -188,6 +227,57 @@ if (window.XR8) {
   registerOccluder()
 } else {
   window.addEventListener('xrloaded', registerOccluder)
+}
+
+// ── Model switcher ──────────────────────────────────────────
+const glassesObjects = {}
+
+function findGlassesObjects() {
+  const xrScene = XR8.CloudStudioThreejs?.xrScene?.()
+  if (!xrScene?.scene) return
+
+  const roots = []
+  xrScene.scene.traverse((obj) => {
+    if (obj.name === 'Sketchfab_Scene' && obj.parent) {
+      roots.push(obj.parent)
+    }
+  })
+
+  if (roots.length < 2) return
+
+  // glasses.glb стартует видимым, glasses3.glb — скрытым
+  const model1 = roots.find(o => o.visible)
+  const model2 = roots.find(o => !o.visible)
+
+  if (model1 && model2) {
+    glassesObjects['glasses.glb']  = model1
+    glassesObjects['glasses3.glb'] = model2
+    console.log('[switcher] both glasses found')
+    clearInterval(findInterval)
+  }
+}
+
+let findInterval = null
+
+function startFindingGlasses() {
+  findInterval = setInterval(findGlassesObjects, 500)
+}
+
+if (window.XR8) {
+  startFindingGlasses()
+} else {
+  window.addEventListener('xrloaded', startFindingGlasses)
+}
+
+function selectModel(name, btn) {
+  // переключаем Three.js видимость
+  Object.keys(glassesObjects).forEach(key => {
+    glassesObjects[key].visible = (key === name)
+  })
+
+  // обновляем активную кнопку
+  document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
 }
 </script>
 </body>
