@@ -51,6 +51,18 @@ const config = {
           to: path.join(distPath, 'image-targets'),
           noErrorOnMissing: true,
         },
+        // Admin panel
+        {
+          from: path.join(srcPath, 'admin.html'),
+          to: path.join(distPath, 'admin.html'),
+          noErrorOnMissing: true,
+        },
+        // Serve scene config so admin.html can fetch /expanse.json
+        {
+          from: path.join(srcPath, '.expanse.json'),
+          to: path.join(distPath, 'expanse.json'),
+          noErrorOnMissing: true,
+        },
       ],
     }),
     createVirtualEntryPlugin({

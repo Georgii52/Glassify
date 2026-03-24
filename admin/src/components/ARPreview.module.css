@@ -1,0 +1,41 @@
+.wrap {
+  position: relative;
+  width: 800px;
+  flex-shrink: 0;
+  background: #000;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,.65);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 3px 12px;
+  font-size: 11px;
+  color: var(--dim);
+  z-index: 10;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.frame {
+  width: 100%;
+  flex: 1;
+  border: none;
+  display: block;
+}
+
+@media (max-width: 700px) {
+  .wrap {
+    width: 100%;
+    height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
