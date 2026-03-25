@@ -1,6 +1,7 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+require('dotenv').config()
 
 const createVirtualEntryPlugin = require('./entry-plugin')
 
@@ -33,6 +34,9 @@ const config = {
       filename: 'index.html',
       scriptLoading: 'blocking',
       inject: false,
+      templateParameters: {
+        API_URL: process.env.API_URL || '',
+      },
     }),
     new CopyWebpackPlugin({
       patterns: [

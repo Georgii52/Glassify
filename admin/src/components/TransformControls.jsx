@@ -59,17 +59,6 @@ export default function TransformControls({ transform, onChange }) {
   return (
     <div className={styles.root}>
 
-      {/* Visibility */}
-      <div className={styles.visRow}>
-        <span className={styles.dimLabel}>Видимость</span>
-        <label className={styles.toggle}>
-          <input type="checkbox" checked={!hidden} onChange={toggleVisible} />
-          <div className={styles.toggleSlider} />
-        </label>
-      </div>
-
-      <div className={styles.divider} />
-
       {/* Position */}
       <div className={styles.section}>
         <div className={styles.sectionTitle}>Позиция</div>
@@ -116,9 +105,9 @@ export default function TransformControls({ transform, onChange }) {
             key={a}
             label={a.toUpperCase()}
             value={+scale[i].toPrecision(5)}
-            min={0} max={1000} step={1}
+            min={0} max={1000} step={0.01}
+            defaultValue={1}
             sliderValue={scaleToSlider(scale[i])}
-            numStep="any"
             disabled={uniformScale && i > 0}
             onSliderChange={v => handleScaleSlider(i, v)}
             onNumChange={v => handleScaleNum(i, v)}

@@ -62,59 +62,6 @@
       "name": "Face",
       "order": 2.8992156533500673
     },
-    "5fb636c8-6f48-4636-9064-30ffaa166571": {
-      "id": "5fb636c8-6f48-4636-9064-30ffaa166571",
-      "position": [
-        -0.02,
-        -0.7,
-        0.06381199371111357
-      ],
-      "rotation": [
-        0,
-        -1.2246467991473532e-16,
-        -1.2246467991473532e-16,
-        1
-      ],
-      "scale": [
-        0.0022,
-        0.0022,
-        0.0022
-      ],
-      "geometry": null,
-      "material": {
-        "type": "basic",
-        "color": "#FFFFFF"
-      },
-      "parentId": "95f54349-f85a-4949-90c1-fc1e8e4c54e3",
-      "components": {
-        "a2401797-e2b7-42f9-8c39-9b7705c0e333": {
-          "id": "a2401797-e2b7-42f9-8c39-9b7705c0e333",
-          "name": "follow-animation",
-          "parameters": {
-            "target": {
-              "type": "entity",
-              "id": "bf9a3ec2-4b4a-4b52-9f69-ece8265fb202"
-            },
-            "maxDistance": 1
-          }
-        }
-      },
-      "gltfModel": {
-        "src": {
-          "type": "asset",
-          "asset": "assets/glasses3.glb"
-        },
-        "animationClip": "",
-        "loop": true
-      },
-      "name": "glasses3.glb",
-      "order": 2.7567618738551642,
-      "shadow": {
-        "receiveShadow": true,
-        "castShadow": true
-      },
-      "hidden": true
-    },
     "9b7c1e94-127a-4820-97d8-19e2bb7703f7": {
       "id": "9b7c1e94-127a-4820-97d8-19e2bb7703f7",
       "position": [
@@ -322,40 +269,6 @@
         "castShadow": true,
         "receiveShadow": true
       }
-    },
-    "b58bb468-59d2-4389-ad1e-d4d22f493544": {
-      "id": "b58bb468-59d2-4389-ad1e-d4d22f493544",
-      "position": [
-        -0.01,
-        0.049303881335093086,
-        0.0369342911609067
-      ],
-      "rotation": [
-        0.04650484306359841,
-        2.5545903083883143e-20,
-        2.714630494546414e-18,
-        0.998918064493595
-      ],
-      "scale": [
-        9.000000000000002,
-        8.000000000000002,
-        7.999999999999999
-      ],
-      "geometry": null,
-      "material": null,
-      "parentId": "95f54349-f85a-4949-90c1-fc1e8e4c54e3",
-      "components": {},
-      "gltfModel": {
-        "src": {
-          "type": "asset",
-          "asset": "assets/glasses.glb"
-        },
-        "animationClip": "",
-        "loop": true
-      },
-      "name": "glasses.glb",
-      "order": 12.014322551186467,
-      "hidden": false
     }
   },
   "spaces": {

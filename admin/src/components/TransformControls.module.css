@@ -11,10 +11,10 @@
 }
 
 .sectionTitle {
-  font-size: 10px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: .1em;
-  color: var(--dim);
+  color: var(--text);
   font-weight: 700;
 }
 
@@ -68,7 +68,7 @@
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  color: var(--dim);
+  color: var(--text);
   cursor: pointer;
 }
 .uniformRow input { accent-color: var(--accent) }

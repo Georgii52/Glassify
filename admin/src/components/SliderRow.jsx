@@ -21,6 +21,7 @@ export default function SliderRow({
   min = -2, max = 2, step = 0.001,
   sliderValue,       // if provided, used for slider position instead of value
   onSliderChange,
+  defaultValue,
   onNumChange,
   disabled = false,
   numStep,
@@ -33,6 +34,11 @@ export default function SliderRow({
     const v = parseFloat(e.target.value)
     if (!isNaN(v)) onNumChange?.(v)
   }, [onNumChange])
+
+  const handleReset = useCallback(() => {
+    if (defaultValue !== undefined) onNumChange?.(defaultValue)
+    else onNumChange?.(0)
+  }, [onNumChange, defaultValue])
 
   const sliderPos = sliderValue !== undefined ? sliderValue : Math.max(min, Math.min(max, value))
 
@@ -48,6 +54,7 @@ export default function SliderRow({
         onChange={handleSlider}
         disabled={disabled}
         className={styles.slider}
+        onDoubleClick={handleReset}
       />
       <input
         type="number"
