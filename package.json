@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "client": "npm run serve --workspace=client",
-    "admin": "npm run dev --workspace=admin",
+    "admin": "npm run dev --workspace=admin -- --host",
     "all": "npm run client & npm run admin",
     "build:client": "npm run build --workspace=client",
     "build:admin": "npm run build --workspace=admin",
