@@ -18,7 +18,7 @@ import styles from './SliderRow.module.css'
 export default function SliderRow({
   label,
   value,
-  min = -2, max = 2, step = 0.001,
+  min = -5, max = 5, step = 0.001,
   sliderValue,       // if provided, used for slider position instead of value
   onSliderChange,
   defaultValue,

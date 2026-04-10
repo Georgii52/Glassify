@@ -67,7 +67,7 @@ export default function TransformControls({ transform, onChange }) {
             key={a}
             label={a.toUpperCase()}
             value={+position[i].toFixed(6)}
-            min={-2} max={2} step={0.001}
+            min={-5} max={5} step={0.001}
             onSliderChange={v => setPos(i, v)}
             onNumChange={v => setPos(i, v)}
           />
