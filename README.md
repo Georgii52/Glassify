@@ -181,7 +181,7 @@ https://admin.example.com/?modelId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 | **Аудитория** | Конечный пользователь | Разработчик / контент-менеджер |
 | **Стек** | Vanilla JS, 8th Wall XR, Three.js, webpack | React 18, Vite, Axios |
 | **Сборка** | `webpack` → `dist/bundle.js` + `index.html` | `vite build` |
-| **AR-движок** | 8th Wall (face tracking, XR8) | Нет — показывает клиент в iframe |
+| **AR-движок** | 8th Wall (face tracking, XR8) |
 | **Роль** | Рендерит модель на лице пользователя | Позволяет настроить позицию/поворот/масштаб модели |
 | **Загрузка модели** | `fetch` → base64 → `GLTFLoader` | Получает base64, передаёт в iframe через `postMessage` |
 | **Запись данных** | Только читает с сервера | Читает и записывает (`PATCH`) |
