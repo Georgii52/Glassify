@@ -67,10 +67,11 @@ tsoy-glasses/
 └── package-lock.json
 ```
 
-### Почему `external/` не в git?
+### Про папку `external/`
 
-Папка `client/external/` содержит проприетарный 8th Wall runtime (`runtime.js`, `xr.js` и ресурсы).
-Эти файлы **нельзя коммитить** — они скачиваются/предоставляются отдельно через 8th Wall Cloud Studio или developer portal. Без них клиент не запустится (будет пустая страница, в консоли ошибки про `XR8` is not defined).
+Папка `client/external/` содержит проприетарный 8th Wall runtime (`runtime.js`, `xr.js` и ресурсы) и **закоммичена в репозиторий**. Это нормально для приватного репо.
+
+Если репозиторий когда-либо станет публичным — эти файлы нужно будет убрать из git: 8th Wall (Niantic) формально запрещает публичное распространение своего runtime в ToS. Для публичного репо их придётся получать отдельно через 8th Wall Cloud Studio или developer portal.
 
 ---
 
@@ -106,19 +107,7 @@ API_URL=http://localhost:3000/glasses
 
 > Подробнее про эти переменные — в разделе [Переменные окружения](#4-переменные-окружения).
 
-### Шаг 3 — Убедиться, что есть `external/`
-
-Скопировать 8th Wall runtime в `client/external/`. Структура должна быть:
-
-```
-client/external/
-├── runtime/
-│   └── runtime.js
-└── xr/
-    └── xr.js
-```
-
-### Шаг 4 — Запустить
+### Шаг 3 — Запустить
 
 ```bash
 # Запустить клиент (webpack-dev-server, порт 8080)
@@ -612,7 +601,7 @@ VITE_CLIENT_URL=https://client.your-domain.com
 
 ### Проверка `external/` перед сборкой
 
-Перед `npm run build:client` автоматически запускается `scripts/check-external.js`, который проверяет наличие 8th Wall runtime файлов. Если их нет — сборка упадёт с понятным сообщением вместо молчаливой поломки:
+Перед `npm run build:client` автоматически запускается `scripts/check-external.js`, который проверяет наличие 8th Wall runtime файлов. Если их нет — сборка упадёт с понятным сообщением:
 
 ```
 ❌ Отсутствуют файлы 8th Wall runtime:
@@ -620,7 +609,7 @@ VITE_CLIENT_URL=https://client.your-domain.com
    client/external/xr/xr.js
 ```
 
-В CI/CD нужно добавить шаг, который восстанавливает эти файлы (из artifact storage, S3, или другого источника) **до** запуска `npm run build:client`.
+Пока репозиторий приватный — файлы уже в git, проверка всегда пройдёт. Скрипт нужен на случай, если `external/` когда-нибудь перестанет быть частью репо.
 
 ---
 
@@ -628,9 +617,8 @@ VITE_CLIENT_URL=https://client.your-domain.com
 
 ### Клиент открывается, но ничего не происходит / пустой экран
 
-1. Проверить `client/external/` — там должны быть `runtime/runtime.js` и `xr/xr.js`
-2. Открыть DevTools → Console. Если есть `XR8 is not defined` — файлов runtime нет
-3. Проверить `client/.env` — `API_URL` должен быть заполнен
+1. Открыть DevTools → Console. Если есть `XR8 is not defined` — файлы `client/external/` не попали в сборку
+2. Проверить `client/.env` — `API_URL` должен быть заполнен
 
 ### Модель не появляется на лице
 
