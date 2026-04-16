@@ -9,6 +9,7 @@
   "scripts": {
     "client": "npm run serve --workspace=client",
     "admin": "npm run dev --workspace=admin -- --host",
+    "prebuild:client": "node scripts/check-external.js",
     "build:client": "npm run build --workspace=client",
     "build:admin": "npm run build --workspace=admin",
     "build:all": "npm run build:client && npm run build:admin"
