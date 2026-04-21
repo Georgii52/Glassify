@@ -1,0 +1,252 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 48px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.topbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoIcon {
+  font-size: 18px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── Body ── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Upload card ── */
+.uploadCard {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.uploadTitle {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--dim);
+}
+
+.dropZone {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--dim);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.dropZone:hover {
+  border-color: var(--accent);
+  background: rgba(108, 142, 239, 0.05);
+  color: var(--text);
+}
+.dropZoneHasFile {
+  border-color: var(--ok);
+  color: var(--text);
+}
+
+.nameInput {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.nameInput:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.nameInput::placeholder {
+  color: var(--dim);
+}
+
+.uploadActions {
+  display: flex;
+  gap: 8px;
+}
+
+.log {
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  max-height: 80px;
+  overflow-y: auto;
+  color: var(--dim);
+}
+.logEntry {
+  margin-bottom: 2px;
+}
+.logOk {
+  color: var(--ok);
+}
+.logErr {
+  color: var(--err);
+}
+
+/* ── Grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+/* ── Card ── */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s;
+}
+.card:hover {
+  border-color: var(--accent);
+}
+
+.cardPreview {
+  background: var(--surface);
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardInfo {
+  padding: 12px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.cardName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.cardId {
+  font-size: 11px;
+  color: var(--dim);
+  font-family: "SF Mono", "Fira Code", monospace;
+}
+
+.card .btnAccent {
+  margin: 0 12px 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.card .btnAccent:hover {
+  opacity: 0.85;
+}
+.card .btnAccent:active {
+  opacity: 0.65;
+}
+
+/* ── Buttons ── */
+.btnGhost {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.btnGhost:hover {
+  opacity: 0.82;
+}
+.btnGhost:active {
+  opacity: 0.65;
+}
+
+.btnOk {
+  background: var(--ok);
+  color: #0d1a14;
+  border: none;
+  border-radius: var(--radius);
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.btnOk:hover {
+  opacity: 0.82;
+}
+.btnOk:active {
+  opacity: 0.65;
+}
+.btnOk:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Empty state ── */
+.empty {
+  color: var(--dim);
+  text-align: center;
+  padding: 40px 0;
+  font-size: 14px;
+}

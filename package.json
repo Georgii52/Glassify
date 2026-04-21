@@ -13,5 +13,8 @@
     "build:client": "npm run build --workspace=client",
     "build:admin": "npm run build --workspace=admin",
     "build:all": "npm run build:client && npm run build:admin"
+  },
+  "dependencies": {
+    "lucide-react": "^1.8.0"
   }
 }

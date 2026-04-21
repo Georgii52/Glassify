@@ -1,236 +1,222 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import axios from 'axios'
-import ARPreview from './components/ARPreview'
-import TransformControls from './components/TransformControls'
-import { eulerDegToQuat } from './utils/math'
-import { modelToTransform } from './utils/config'
-import styles from './App.module.css'
-
-// ─── URL params & constants ──────────────────────────────────
-
-const URL_MODEL_ID = new URLSearchParams(window.location.search).get('modelId')
-const MODEL_NAME   = `Модель ${URL_MODEL_ID}`
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import ARPreview from "./components/ARPreview";
+import TransformControls from "./components/TransformControls";
+import { eulerDegToQuat } from "./utils/math";
+import { modelToTransform } from "./utils/config";
+import styles from "./App.module.css";
 
 // ─── Initial state ───────────────────────────────────────────
 
 const EMPTY_TRANSFORM = {
   position: [0, 0, 0],
   rotation: [0, 0, 0],
-  scale:    [1, 1, 1],
-  hidden:   false,
-}
+  scale: [1, 1, 1],
+  hidden: false,
+};
 
 // ─── Log ─────────────────────────────────────────────────────
 
 function progressBar(pct) {
-  const filled = Math.round(pct / 10)
-  return '█'.repeat(filled) + '░'.repeat(10 - filled) + ` ${pct}%`
+  const filled = Math.round(pct / 10);
+  return "█".repeat(filled) + "░".repeat(10 - filled) + ` ${pct}%`;
 }
 
 function useLog() {
-  const [entries, setEntries] = useState([])
-  const add = useCallback((msg, type = '') => {
-    const id = Date.now() + Math.random()
-    setEntries(prev => [...prev, { id, msg, type, time: new Date().toLocaleTimeString() }])
-    return id
-  }, [])
+  const [entries, setEntries] = useState([]);
+  const add = useCallback((msg, type = "") => {
+    const id = Date.now() + Math.random();
+    setEntries((prev) => [
+      ...prev,
+      { id, msg, type, time: new Date().toLocaleTimeString() },
+    ]);
+    return id;
+  }, []);
   const update = useCallback((id, msg, type) => {
-    setEntries(prev => prev.map(e =>
-      e.id === id ? { ...e, msg, ...(type !== undefined ? { type } : {}) } : e
-    ))
-  }, [])
-  return { entries, add, update }
+    setEntries((prev) =>
+      prev.map((e) =>
+        e.id === id
+          ? { ...e, msg, ...(type !== undefined ? { type } : {}) }
+          : e,
+      ),
+    );
+  }, []);
+  return { entries, add, update };
 }
 
 // ─── App ─────────────────────────────────────────────────────
 
 export default function App() {
-  const [config, setConfig]       = useState(null)
-  const [originals, setOriginals] = useState({})
-  const [modelId, setModelId]     = useState(null)
-  const [transform, setTransform] = useState(EMPTY_TRANSFORM)
-  const [status, setStatus]       = useState({ type: 'loading', text: 'Загрузка...' })
-  const [uploadFile, setUploadFile] = useState(null)
-  const [modelBase64, setModelBase64] = useState(null)
-  const { entries: logs, add: addLog, update: updateLog } = useLog()
-  const logRef   = useRef(null)
-  const fileRef  = useRef(null)
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const urlModelId = searchParams.get("modelId");
+
+  const [config, setConfig] = useState(null);
+  const [originals, setOriginals] = useState({});
+  const [modelId, setModelId] = useState(null);
+  const [transform, setTransform] = useState(EMPTY_TRANSFORM);
+  const [status, setStatus] = useState({
+    type: "loading",
+    text: "Загрузка...",
+  });
+  const [modelBase64, setModelBase64] = useState(null);
+  const { entries: logs, add: addLog, update: updateLog } = useLog();
+  const logRef = useRef(null);
 
   // Auto-scroll log
   useEffect(() => {
-    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
-  }, [logs])
+    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
+  }, [logs]);
 
   // ── Load config ────────────────────────────────────────────
   useEffect(() => {
+    if (!urlModelId) return;
     async function load() {
       try {
-        const logId = addLog('Загрузка ' + progressBar(0))
-        const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/glasses/${URL_MODEL_ID}`, {
-          onDownloadProgress: (e) => {
-            if (e.total) updateLog(logId, 'Загрузка ' + progressBar(Math.round(e.loaded / e.total * 100)))
-          },
-        })
-        updateLog(logId, 'Конфигурация загружена', 'ok')
-
-        const dto  = data.dto
-        const parseArr = v => Array.isArray(v) ? v : JSON.parse(v)
-        const cfg  = {
-          objects: {
-            [URL_MODEL_ID]: {
-              id:       URL_MODEL_ID,
-              name:     MODEL_NAME,
-              hidden:   false,
-              position: parseArr(dto.position),
-              rotation: parseArr(dto.rotation),
-              scale:    parseArr(dto.scale),
+        const logId = addLog("Загрузка " + progressBar(0));
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/glasses/${urlModelId}`,
+          {
+            onDownloadProgress: (e) => {
+              if (e.total)
+                updateLog(
+                  logId,
+                  "Загрузка " +
+                    progressBar(Math.round((e.loaded / e.total) * 100)),
+                );
             },
           },
-        }
-        initConfig(cfg)
-        if (data.file?.base64) setModelBase64(data.file.base64)
+        );
+        updateLog(logId, "Конфигурация загружена", "ok");
+
+        const dto = data.dto;
+        const parseArr = (v) => (Array.isArray(v) ? v : JSON.parse(v));
+        const cfg = {
+          objects: {
+            [urlModelId]: {
+              id: urlModelId,
+              name: data.name ?? `Модель ${urlModelId}`,
+              hidden: false,
+              position: parseArr(dto.position),
+              rotation: parseArr(dto.rotation),
+              scale: parseArr(dto.scale),
+            },
+          },
+        };
+        initConfig(cfg);
+        if (data.file?.base64) setModelBase64(data.file.base64);
       } catch (e) {
-        addLog(`Ошибка загрузки: ${e.message}`, 'err')
-        setStatus({ type: 'err', text: 'Ошибка загрузки' })
+        addLog(`Ошибка загрузки: ${e.message}`, "err");
+        setStatus({ type: "err", text: "Ошибка загрузки" });
       }
     }
-    load()
-  }, [])
+    load();
+  }, [urlModelId]);
 
   function initConfig(cfg) {
-    setConfig(cfg)
-    const target = cfg.objects?.[URL_MODEL_ID]
+    setConfig(cfg);
+    const target = cfg.objects?.[urlModelId];
     if (target) {
-      setOriginals({ [URL_MODEL_ID]: JSON.parse(JSON.stringify(target)) })
-      setModelId(URL_MODEL_ID)
-      setTransform(modelToTransform(target))
+      setOriginals({ [urlModelId]: JSON.parse(JSON.stringify(target)) });
+      setModelId(urlModelId);
+      setTransform(modelToTransform(target));
     } else {
-      setStatus({ type: 'err', text: `Модель не найдена: ${URL_MODEL_ID}` })
+      setStatus({ type: "err", text: `Модель не найдена: ${urlModelId}` });
     }
   }
 
   // ── Transform change ───────────────────────────────────────
   function handleTransformChange(next) {
-    setTransform(next)
-    applyTransformToConfig(config, modelId, next)
-    setConfig(cfg => ({ ...cfg }))   // trigger re-render if needed
+    setTransform(next);
+    applyTransformToConfig(config, modelId, next);
+    setConfig((cfg) => ({ ...cfg })); // trigger re-render if needed
   }
 
   function applyTransformToConfig(cfg, id, t) {
-    if (!cfg?.objects?.[id] || !t) return
-    cfg.objects[id].position = [...t.position]
-    cfg.objects[id].rotation = eulerDegToQuat(...t.rotation)
-    cfg.objects[id].scale    = [...t.scale]
-    cfg.objects[id].hidden   = t.hidden
+    if (!cfg?.objects?.[id] || !t) return;
+    cfg.objects[id].position = [...t.position];
+    cfg.objects[id].rotation = eulerDegToQuat(...t.rotation);
+    cfg.objects[id].scale = [...t.scale];
+    cfg.objects[id].hidden = t.hidden;
   }
 
   // ── Save to backend ────────────────────────────────────────
   async function saveToBackend() {
-    if (!import.meta.env.VITE_BASE_URL) { addLog('URL бекенда не задан', 'err'); return }
-    const m = config?.objects?.[modelId]
-    if (!m) return
+    if (!import.meta.env.VITE_BASE_URL) {
+      addLog("URL бекенда не задан", "err");
+      return;
+    }
+    const m = config?.objects?.[modelId];
+    if (!m) return;
 
-    setStatus({ type: 'loading', text: 'Сохранение...' })
-    const logId = addLog('↑ Сохранение ' + progressBar(0))
+    setStatus({ type: "loading", text: "Сохранение..." });
+    const logId = addLog("↑ Сохранение " + progressBar(0));
     try {
-      await axios.patch(`${import.meta.env.VITE_BASE_URL}/glasses/${m.id}`,
+      await axios.patch(
+        `${import.meta.env.VITE_BASE_URL}/glasses/${m.id}`,
         { position: m.position, rotation: m.rotation, scale: m.scale },
         {
           onUploadProgress: (e) => {
-            if (e.total) updateLog(logId, '↑ Сохранение ' + progressBar(Math.round(e.loaded / e.total * 100)))
+            if (e.total)
+              updateLog(
+                logId,
+                "↑ Сохранение " +
+                  progressBar(Math.round((e.loaded / e.total) * 100)),
+              );
           },
-        }
-      )
-      updateLog(logId, `✓ ${m.name} сохранена на сервере`, 'ok')
-      setStatus({ type: 'ok', text: 'Сохранено' })
+        },
+      );
+      updateLog(logId, `✓ ${m.name} сохранена на сервере`, "ok");
+      setStatus({ type: "ok", text: "Сохранено" });
     } catch (e) {
-      updateLog(logId, `✗ ${e.message}`, 'err')
-      setStatus({ type: 'err', text: 'Ошибка' })
+      updateLog(logId, `✗ ${e.message}`, "err");
+      setStatus({ type: "err", text: "Ошибка" });
     }
   }
 
   function resetToDefault() {
-    const orig = originals[modelId]
-    if (!orig) return
-    const restored = JSON.parse(JSON.stringify(orig))
-    setConfig(prev => ({ ...prev, objects: { ...prev.objects, [modelId]: restored } }))
-    setTransform(modelToTransform(restored))
-    addLog('Сброшено до значений с сервера', 'ok')
-  }
-
-  // ── Upload new model ───────────────────────────────────────
-  async function uploadModel() {
-    if (!uploadFile) { addLog('Файл не выбран', 'err'); return }
-    if (!import.meta.env.VITE_BASE_URL) { addLog('URL бекенда не задан', 'err'); return }
-
-    const name = uploadFile.name
-    const fd = new FormData()
-    fd.append('model', uploadFile, name)
-
-    setStatus({ type: 'loading', text: 'Загрузка...' })
-    const logId = addLog('Загрузка ' + progressBar(0))
-    try {
-      const { data } = await axios.post(`${import.meta.env.VITE_BASE_URL}/glasses`, fd, {
-        onUploadProgress: (e) => {
-          if (e.total) updateLog(logId, 'Загрузка ' + progressBar(Math.round(e.loaded / e.total * 100)))
-        },
-      })
-      const newId = data.id || ('up-' + Date.now())
-      addModelToConfig(newId, name)
-      updateLog(logId, `✓ "${name}" загружен`, 'ok')
-      setStatus({ type: 'ok', text: 'Готово' })
-    } catch (e) {
-      updateLog(logId, `✗ ${e.message}`, 'err')
-      setStatus({ type: 'err', text: 'Ошибка' })
-    }
-  }
-
-  function addModelToConfig(id, name) {
-    const newModel = {
-      id, name, hidden: false,
-      position: [...transform.position],
-      rotation: eulerDegToQuat(...transform.rotation),
-      scale: [...transform.scale],
-      gltfModel: { src: { type: 'asset', asset: `assets/${name}` }, animationClip: '', loop: true },
-      shadow: { castShadow: true, receiveShadow: true },
-    }
-    setConfig(prev => ({
+    const orig = originals[modelId];
+    if (!orig) return;
+    const restored = JSON.parse(JSON.stringify(orig));
+    setConfig((prev) => ({
       ...prev,
-      objects: { ...prev.objects, [id]: newModel },
-    }))
-    setOriginals(prev => ({ ...prev, [id]: JSON.parse(JSON.stringify(newModel)) }))
-    setModelId(id)
-    setTransform(modelToTransform(newModel))
-    setUploadFile(null)
-    if (fileRef.current) fileRef.current.value = ''
-    addLog(`"${name}" добавлен`, 'ok')
-  }
-
-  // ── Drag & drop ────────────────────────────────────────────
-  function handleDrop(e) {
-    e.preventDefault()
-    const f = e.dataTransfer.files[0]
-    if (f?.name.toLowerCase().endsWith('.glb')) setUploadFile(f)
-    else addLog('Нужен .glb файл', 'err')
+      objects: { ...prev.objects, [modelId]: restored },
+    }));
+    setTransform(modelToTransform(restored));
+    addLog("Сброшено до значений с сервера", "ok");
   }
 
   // ── Render ─────────────────────────────────────────────────
-  const currentModel = config?.objects?.[modelId]
+  const currentModel = config?.objects?.[modelId];
 
-  if (!URL_MODEL_ID) {
-    return <div className={styles.root} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text)' }}>Неизвестный URL или не передан ID</div>
+  if (!urlModelId) {
+    return (
+      <div
+        className={styles.root}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "var(--text)",
+        }}
+      >
+        Не передан ID модели
+      </div>
+    );
   }
 
   return (
     <div className={styles.root}>
-
       {/* Top bar */}
       <div className={styles.topbar}>
-        <span className={styles.title}>{currentModel?.name ?? '...'}</span>
+        <button className={styles.btnGhost} onClick={() => navigate("/")}>
+          Назад в каталог
+        </button>
+        <span className={styles.title}>{currentModel?.name ?? "..."}</span>
       </div>
 
       <div className={styles.layout}>
-
         {/* AR Preview */}
         <ARPreview
           modelName={currentModel?.name}
@@ -240,17 +226,20 @@ export default function App() {
 
         {/* Controls */}
         <div className={styles.ctrlPanel}>
-
-        {/* Log */}
+          {/* Log */}
           <div className={styles.log} ref={logRef}>
-            {logs.length === 0
-              ? <span style={{ color: 'var(--dim)' }}>Готов к работе...</span>
-              : logs.map((e, i) => (
-                  <div key={i} className={`${styles.logEntry} ${e.type === 'ok' ? styles.logOk : e.type === 'err' ? styles.logErr : ''}`}>
-                    [{e.time}] {e.msg}
-                  </div>
-                ))
-            }
+            {logs.length === 0 ? (
+              <span style={{ color: "var(--dim)" }}>Готов к работе...</span>
+            ) : (
+              logs.map((e, i) => (
+                <div
+                  key={i}
+                  className={`${styles.logEntry} ${e.type === "ok" ? styles.logOk : e.type === "err" ? styles.logErr : ""}`}
+                >
+                  [{e.time}] {e.msg}
+                </div>
+              ))
+            )}
           </div>
 
           <div className={styles.divider} />
@@ -261,55 +250,22 @@ export default function App() {
             onChange={handleTransformChange}
           />
 
-          <div className={styles.divider} />
-
-          {/* Upload */}
-          <details className={styles.details}>
-            <summary className={styles.summary}>Загрузить новую модель</summary>
-            <div className={styles.uploadSection}>
-              <div
-                className={`${styles.dropZone} ${uploadFile ? styles.dropZoneHasFile : ''}`}
-                onClick={() => fileRef.current?.click()}
-                onDragOver={e => e.preventDefault()}
-                onDrop={handleDrop}
-              >
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".glb"
-                  style={{ display: 'none' }}
-                  onChange={e => setUploadFile(e.target.files[0] || null)}
-                />
-                {uploadFile
-                  ? <><strong>{uploadFile.name}</strong> ({(uploadFile.size/1024/1024).toFixed(2)} МБ)</>
-                  : '📦 Выбрать .glb или перетащить'
-                }
-              </div>
-              {uploadFile && (
-                <div className={styles.uploadActions}>
-                  <button className={styles.btnOk}    onClick={uploadModel}>Отправить</button>
-                  <button className={styles.btnGhost} onClick={() => { setUploadFile(null); if(fileRef.current) fileRef.current.value='' }}>✕</button>
-                </div>
-              )}
-            </div>
-          </details>
-
           <div className={styles.topActions}>
-            <button className={styles.btnOk} onClick={saveToBackend}>Сохранить положение</button>
+            <button className={styles.btnOk} onClick={saveToBackend}>
+              Сохранить положение
+            </button>
             <button className={styles.btnGhost} onClick={resetToDefault}>
               Сбросить до значений по умолчанию
             </button>
           </div>
-
         </div>
       </div>
 
       {/* Status bar */}
       <div className={styles.statusbar}>
-        <div className={`${styles.dot} ${styles['dot_' + status.type]}`} />
+        <div className={`${styles.dot} ${styles["dot_" + status.type]}`} />
         <span>{status.text}</span>
       </div>
-
     </div>
-  )
+  );
 }

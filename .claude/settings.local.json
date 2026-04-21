@@ -4,7 +4,9 @@
       "Bash(npm install:*)",
       "Bash(node -e \":*)",
       "Bash(node -e \"require\\(''./src/.expanse.json''\\); console.log\\(''JSON valid''\\)\" --cwd \"c:/Users/Georgii M/Documents/8th Wall/tsoy-glasses\")",
-      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''src/.expanse.json'',''utf8''\\)\\); console.log\\(''JSON valid''\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''src/.expanse.json'',''utf8''\\)\\); console.log\\(''JSON valid''\\)\")",
+      "Bash(awk '{print \"  \" $0}')",
+      "Bash(npm run *)"
     ]
   }
 }
