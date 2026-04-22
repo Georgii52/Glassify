@@ -4,6 +4,11 @@ services:
     build:
       context: ./admin
       dockerfile: ./Dockerfile
+      args:
+        # Бэкенд за тем же доменом: https://<домен>/apiback (подставь свой домен в .env или здесь)
+        VITE_BASE_URL: ${ADMIN_VITE_BASE_URL:-https://trello-analog.ru/apiback}
+        VITE_COOKIE_NAME: ${ADMIN_VITE_COOKIE_NAME:-admin_token}
+        VITE_COOKIE_MAX_AGE: ${ADMIN_VITE_COOKIE_MAX_AGE:-604800}
     env_file:
       - ./admin/.env
     networks:
