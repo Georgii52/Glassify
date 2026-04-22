@@ -1,6 +1,7 @@
 FROM nginx:stable-alpine
 
-COPY nginx.conf /etc/nginx/nginx.conf
+# Шаблон: entrypoint подставляет домен и пишет /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf.template
 
 RUN apk add --no-cache openssl
 
