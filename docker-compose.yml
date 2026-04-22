@@ -23,6 +23,9 @@ services:
     build:
       context: ./client
       dockerfile: ./Dockerfile
+      args:
+        # fetch в index.html: `${BACKEND_URL}/${MODEL_ID}` → префикс .../apiback/glasses
+        API_URL: ${CLIENT_API_URL:-https://trello-analog.ru/apiback/glasses}
     env_file:
       - ./client/.env
     networks:
