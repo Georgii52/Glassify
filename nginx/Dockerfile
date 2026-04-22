@@ -1,6 +1,6 @@
 FROM nginx:stable-alpine
 
-COPY nginx.conf /etc/nginx/nginx.conf.template
+COPY nginx.conf /etc/nginx/nginx.conf
 
 RUN apk add --no-cache openssl
 

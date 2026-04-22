@@ -36,6 +36,9 @@ services:
       - tsoy-optika-network
     env_file:
       - ./backend/.env
+    environment:
+      # Совпадает с nginx и healthcheck; перекрывает случайный PORT в .env на сервере
+      PORT: "3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -43,12 +46,12 @@ services:
       test:
         [
           "CMD-SHELL",
-          "node -e \"require('net').createConnection(3001,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))\"",
+          "node -e \"require('net').createConnection(3000,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))\"",
         ]
       interval: 5s
       timeout: 5s
-      retries: 12
-      start_period: 60s
+      retries: 24
+      start_period: 120s
     restart: unless-stopped
   postgres:
     image: postgres:16-alpine

@@ -21,8 +21,8 @@ import { AuthModule } from './modules/auth/auth.module';
     AuthModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.POSTGRES_HOST,
-      port: Number(process.env.POSTGRES_PORT),
+      host: process.env.DB_HOST ?? process.env.POSTGRES_HOST,
+      port: Number(process.env.DB_PORT ?? process.env.POSTGRES_PORT ?? 5432),
       username: process.env.DB_USERNAME,
       // pg ожидает строку; если переменная не подтянулась, хотя бы не упадем на типе
       password: String(process.env.DB_PASSWORD ?? ''),
