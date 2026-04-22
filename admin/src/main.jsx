@@ -6,19 +6,30 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import "./index.css";
 
-// Тянуть Catalog/App отдельными чанками: иначе @google/model-viewer грузится на /auth/login
-// и может уронить весь бандл до монтирования React (белый экран, title из index.html есть).
 const Catalog = lazy(() => import("./pages/Catalog"));
 const App = lazy(() => import("./App"));
 
+function RouterError() {
+  return (
+    <div style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
+      Ошибка маршрутизации админки. Откройте консоль браузера (F12) и пришлите
+      текст красных сообщений.
+    </div>
+  );
+}
+
+// React Router v7: нельзя полагаться на pathless layout + child path: "/".
+// Явный path: "/" у родителя и index: true у каталога — стабильная схема под basename /admin
 const router = createBrowserRouter(
   [
     { path: "/auth/login", element: <Login /> },
     {
+      path: "/",
       element: <ProtectedRoute />,
+      errorElement: <RouterError />,
       children: [
-        { path: "/", element: <Catalog /> },
-        { path: "/editor", element: <App /> },
+        { index: true, element: <Catalog /> },
+        { path: "editor", element: <App /> },
       ],
     },
   ],
