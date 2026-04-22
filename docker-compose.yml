@@ -1,0 +1,89 @@
+services:
+  admin:
+    image: tsoy-optika-admin
+    build:
+      context: ./admin
+      dockerfile: ./Dockerfile
+    env_file:
+      - ./admin/.env
+    networks:
+      - tsoy-optika-network
+    depends_on:
+      - backend
+    environment:
+      AUTH_TRUST_HOST: "true"
+    restart: unless-stopped
+  client:
+    image: tsoy-optika-client
+    build:
+      context: ./client
+      dockerfile: ./Dockerfile
+    env_file:
+      - ./client/.env
+    networks:
+      - tsoy-optika-network
+    depends_on:
+      - backend
+    environment:
+      AUTH_TRUST_HOST: "true"
+    restart: unless-stopped
+  backend:
+    image: tsoy-optika-back
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    networks:
+      - tsoy-optika-network
+    env_file:
+      - ./backend/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - tsoy-optika-network
+    volumes:
+      - tsoy-optika-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - client
+      - admin
+      - backend
+    networks:
+      - tsoy-optika-network
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt:ro
+      - ./nginx/www:/var/www/certbot
+    environment:
+      NGINX_CERT_DOMAIN: ansara-test1.ru
+    restart: unless-stopped
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
+    entrypoint: /bin/sh
+    command: -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h; done"
+    networks:
+      - tsoy-optika-network
+    restart: unless-stopped
+volumes:
+  tsoy-optika-db:
+networks:
+  tsoy-optika-network:
