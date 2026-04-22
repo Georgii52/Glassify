@@ -1,13 +1,12 @@
 #!/bin/sh
 set -eu
 
-DOMAIN="${NGINX_CERT_DOMAIN:-ansara-test1.ru}"
+DOMAIN="${NGINX_CERT_DOMAIN:-trello-analog.ru}"
 LIVE_DIR="/etc/letsencrypt/live/${DOMAIN}"
 FULLCHAIN="${LIVE_DIR}/fullchain.pem"
 PRIVKEY="${LIVE_DIR}/privkey.pem"
 
-# If Let's Encrypt cert isn't present yet, create a temporary self-signed cert
-# so nginx can start and serve the HTTP-01 challenge on port 80.
+# Если Let's Encrypt ещё не выдавал сертификат — временный self-signed, чтобы nginx поднялся и отдал HTTP-01
 if [ ! -s "${FULLCHAIN}" ] || [ ! -s "${PRIVKEY}" ]; then
   echo "SSL cert for ${DOMAIN} not found; generating temporary self-signed cert."
   mkdir -p "${LIVE_DIR}"
@@ -17,5 +16,6 @@ if [ ! -s "${FULLCHAIN}" ] || [ ! -s "${PRIVKEY}" ]; then
     -out "${FULLCHAIN}" >/dev/null 2>&1 || true
 fi
 
-exec nginx -g "daemon off;"
+sed "s|__CERT_DOMAIN__|${DOMAIN}|g" /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
+exec nginx -g "daemon off;"
