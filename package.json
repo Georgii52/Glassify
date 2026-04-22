@@ -2,10 +2,6 @@
   "name": "tsoy-glasses-client-and-admin",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "client",
-    "admin"
-  ],
   "scripts": {
     "client": "npm run serve --workspace=client",
     "admin": "npm run dev --workspace=admin -- --host",
@@ -13,8 +9,5 @@
     "build:client": "npm run build --workspace=client",
     "build:admin": "npm run build --workspace=admin",
     "build:all": "npm run build:client && npm run build:admin"
-  },
-  "dependencies": {
-    "lucide-react": "^1.8.0"
   }
 }

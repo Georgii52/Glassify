@@ -4,11 +4,11 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN npm ci
+RUN npm i
 
 COPY . .
 
-RUN npm run build -- --base=/admin/
+RUN npm run build
 
 FROM nginx:stable-alpine AS runtime
 
