@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react'
 import { eulerDegToQuat } from '../utils/math'
 import styles from './ARPreview.module.css'
 
-const AR_URL = 'http://localhost:8080'
+/** Публичный URL страницы client (webpack dev :8080, прод — корень домена). */
+const AR_URL = `${String(import.meta.env.VITE_CLIENT_URL || 'http://localhost:8080').replace(/\/$/, '')}/`
 
 /**
  * Renders the 8th Wall AR experience in an iframe and sends

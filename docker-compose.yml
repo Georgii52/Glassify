@@ -7,6 +7,8 @@ services:
       args:
         # Бэкенд за тем же доменом: https://<домен>/apiback (подставь свой домен в .env или здесь)
         VITE_BASE_URL: ${ADMIN_VITE_BASE_URL:-https://trello-analog.ru/apiback}
+        # iframe предпросмотра в редакторе: корень сайта, где отдаётся client
+        VITE_CLIENT_URL: ${ADMIN_VITE_CLIENT_URL:-https://trello-analog.ru}
         VITE_COOKIE_NAME: ${ADMIN_VITE_COOKIE_NAME:-admin_token}
         VITE_COOKIE_MAX_AGE: ${ADMIN_VITE_COOKIE_MAX_AGE:-604800}
     env_file:
