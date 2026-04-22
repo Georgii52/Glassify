@@ -71,7 +71,7 @@ services:
       - ./letsencrypt:/etc/letsencrypt:ro
       - ./nginx/www:/var/www/certbot
     environment:
-      NGINX_CERT_DOMAIN: ansara-test1.ru
+      NGINX_CERT_DOMAIN: trello-analog.ru
     restart: unless-stopped
   certbot:
     image: certbot/certbot:latest
