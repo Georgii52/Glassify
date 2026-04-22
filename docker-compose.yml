@@ -50,7 +50,7 @@ services:
     volumes:
       - tsoy-optika-db:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -U $${DB_USERNAME} -d $${DB_NAME}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -68,7 +68,7 @@ services:
     networks:
       - tsoy-optika-network
     volumes:
-      - ./letsencrypt:/etc/letsencrypt:ro
+      - ./letsencrypt:/etc/letsencrypt
       - ./nginx/www:/var/www/certbot
     environment:
       NGINX_CERT_DOMAIN: trello-analog.ru

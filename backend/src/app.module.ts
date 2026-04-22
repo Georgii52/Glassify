@@ -23,10 +23,10 @@ import { AuthModule } from './modules/auth/auth.module';
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
       port: Number(process.env.POSTGRES_PORT),
-      username: process.env.POSTGRES_USER,
+      username: process.env.DB_USERNAME,
       // pg ожидает строку; если переменная не подтянулась, хотя бы не упадем на типе
-      password: String(process.env.POSTGRES_PASSWORD ?? ''),
-      database: process.env.POSTGRES_DB,
+      password: String(process.env.DB_PASSWORD ?? ''),
+      database: process.env.DB_NAME,
       entities: [
         __dirname + '/**/*.entity{.ts,.js}',
         GlassesEntity,
