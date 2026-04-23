@@ -86,6 +86,14 @@ export class AppService {
     return newModel;
   }
 
+  async deleteGlassesById(id: string) {
+    const glasses = await this.glassesRepository.findOneBy({ id });
+    if (!glasses) throw new NotFoundException('Glasses not found');
+    await this.s3Service.deleteCardPhoto(glasses.key);
+    await this.glassesRepository.remove(glasses);
+    return { id };
+  }
+
   // Обновляет все параметры очков: position/rotation/scale
   async patchGlassesById(id: string, dto: CreateGlassesDto) {
     const glasses = await this.glassesRepository.findOneBy({ id });

@@ -79,6 +79,19 @@ export default function Catalog() {
     if (fileRef.current) fileRef.current.value = "";
   }
 
+  async function deleteModel(model) {
+    const label = model.name ?? model.id;
+    if (!window.confirm(`Удалить модель "${label}"?`)) return;
+    const logId = addLog(`Удаление "${label}"…`);
+    try {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}/glasses/${model.id}`);
+      updateLog(logId, `✓ "${label}" удалён`, "ok");
+      await fetchModels();
+    } catch (e) {
+      updateLog(logId, `✗ Ошибка удаления: ${e.message}`, "err");
+    }
+  }
+
   async function uploadModel() {
     if (!uploadFile) return;
     if (!uploadName.trim()) {
@@ -210,14 +223,36 @@ export default function Catalog() {
                   <span className={styles.cardName}>
                     {model.name ?? model.id}
                   </span>
-                  <span className={styles.cardId}>ID модели: {model.id}</span>
+                  <span className={styles.cardId}>ID: {model.id}</span>
+                  <a
+                    className={styles.cardPreviewUrl}
+                    href={`https://trello-analog.ru/?modelId=${model.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    trello-analog.ru/?modelId={model.id}
+                  </a>
                 </div>
-                <button
-                  className={styles.btnAccent}
-                  onClick={() => navigate(`/editor?modelId=${model.id}`)}
-                >
-                  Открыть
-                </button>
+                <div className={styles.cardActions}>
+                  <button
+                    className={styles.btnAccent}
+                    onClick={() => navigate(`/editor?modelId=${model.id}`)}
+                  >
+                    Открыть
+                  </button>
+                  <button
+                    className={styles.btnDelete}
+                    title="Удалить модель"
+                    onClick={() => deleteModel(model)}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-1 14H6L5 6" />
+                      <path d="M10 11v6M14 11v6" />
+                      <path d="M9 6V4h6v2" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             ))}
           </div>

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreateGlassesDto } from './dto/create-glasses.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -44,5 +44,10 @@ export class AppController {
     @Body() dto: CreateGlassesDto,
   ) {
     return this.appService.patchGlassesById(id, dto);
+  }
+
+  @Delete(':id')
+  async deleteGlassesById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.appService.deleteGlassesById(id);
   }
 }
