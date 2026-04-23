@@ -262,6 +262,13 @@ Content-Type: application/json
 { "login": "admin", "password": "secret" }
 ```
 
+```
+GET /apiback/auth/me
+Authorization: Bearer <token>
+```
+
+Проверяет валидность JWT. Возвращает `{ "id": "<UUID>", "login": "admin" }` или `401`. Используется фронтендом при старте для верификации сохранённого токена.
+
 ---
 
 ## Загрузка модели по UUID
