@@ -29,6 +29,7 @@ export class AppService {
 
     return {
       dto: {
+        name: glasses.name,
         position: glasses.position,
         rotation: glasses.rotation,
         scale: glasses.scale,
@@ -53,8 +54,12 @@ export class AppService {
 
   async addGlasses(dto: CreateGlassesDto, model?: Multer.File) {
     if (!model) throw new BadRequestException('Model is required');
+    if (!dto?.name || typeof dto.name !== 'string' || !dto.name.trim()) {
+      throw new BadRequestException('Name is required');
+    }
     const key = `glasses/${uuid()}`;
     await this.s3Service.uploadCardPhoto(key, model.buffer, model.mimetype);
+    const name = dto.name.trim();
 
     const position: [number, number, number] =
       Array.isArray(dto?.position) && dto.position.length === 3
@@ -78,6 +83,7 @@ export class AppService {
 
     const newModel =  this.glassesRepository.create({
       key,
+      name,
       position,
       rotation,
       scale,
@@ -94,10 +100,14 @@ export class AppService {
     return { id };
   }
 
-  // Обновляет все параметры очков: position/rotation/scale
+  // Обновляет все параметры очков: name/position/rotation/scale
   async patchGlassesById(id: string, dto: CreateGlassesDto) {
     const glasses = await this.glassesRepository.findOneBy({ id });
     if (!glasses) throw new NotFoundException('Glasses not found');
+    if (!dto?.name || typeof dto.name !== 'string' || !dto.name.trim()) {
+      throw new BadRequestException('Name is required');
+    }
+    const name = dto.name.trim();
 
     const position: [number, number, number] =
       Array.isArray(dto?.position) && dto.position.length === 3
@@ -127,6 +137,7 @@ export class AppService {
           ]
         : [1, 1, 1];
 
+    glasses.name = name;
     glasses.position = position;
     glasses.rotation = rotation;
     glasses.scale = scale;

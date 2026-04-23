@@ -12,6 +12,9 @@ export class GlassesEntity extends MainEntity {
     @Column()
     key: string;
 
+    @Column()
+    name: string;
+
     @Column({ type: 'jsonb' })
     position: [number, number, number];
 
