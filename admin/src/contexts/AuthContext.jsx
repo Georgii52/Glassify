@@ -28,6 +28,7 @@ function deleteCookie(name) {
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => getCookie(COOKIE_NAME));
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -36,6 +37,23 @@ export function AuthProvider({ children }) {
       delete axios.defaults.headers.common["Authorization"];
     }
   }, [token]);
+
+  // Verify saved token with the backend on startup
+  useEffect(() => {
+    if (!token) {
+      setReady(true);
+      return;
+    }
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/auth/me`)
+      .then(() => setReady(true))
+      .catch(() => {
+        deleteCookie(COOKIE_NAME);
+        setToken(null);
+        setReady(true);
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const login = useCallback(async (login, password) => {
     const { data } = await axios.post(
@@ -54,7 +72,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthCtx.Provider
-      value={{ token, login, logout, isAuthenticated: !!token }}
+      value={{ token, login, logout, isAuthenticated: !!token, ready }}
     >
       {children}
     </AuthCtx.Provider>

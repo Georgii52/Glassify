@@ -1,6 +1,6 @@
 # tsoy-glasses
 
-AR-примерка очков на базе 8th Wall. Проект состоит из двух независимых приложений и подключается к внешнему бэкенду.
+AR-примерка очков на базе 8th Wall. Состоит из трёх приложений: AR-клиент, панель администратора и бэкенд.
 
 ---
 
@@ -8,209 +8,323 @@ AR-примерка очков на базе 8th Wall. Проект состои
 
 ```
 tsoy-glasses/
-├── admin/          # Панель администратора (React + Vite)
+├── admin/          # Панель администратора (React + Vite + React Router)
 ├── client/         # AR-клиент на 8th Wall (webpack + vanilla JS)
-├── package.json    # npm workspaces — объединяет admin и client
-└── package-lock.json
+├── backend/        # REST API (NestJS + TypeORM + PostgreSQL + S3)
+├── nginx/          # Конфигурация Nginx reverse proxy
+├── docker-compose.yml
+└── package.json    # npm workspaces — объединяет admin и client
 ```
 
 ### `admin/`
 
-React-приложение для настройки 3D-моделей. Открывается разработчиком или контент-менеджером.
+React-приложение для управления 3D-моделями. Имеет три маршрута (базовый путь `/admin`):
+
+| Маршрут | Страница |
+|---|---|
+| `/admin/auth/login` | Страница входа |
+| `/admin/` | Каталог моделей (защищён JWT) |
+| `/admin/editor?modelId=<UUID>` | Редактор трансформов (защищён JWT) |
 
 ```
-admin/
-└── src/
-    ├── App.jsx                  # Главный компонент: загрузка конфига, сохранение, загрузка файла
-    ├── App.module.css
-    ├── main.jsx
-    ├── index.css
-    ├── components/
-    │   ├── ARPreview.jsx        # iframe с клиентом + отправка команд через postMessage
-    │   ├── ARPreview.module.css
-    │   ├── TransformControls.jsx # Слайдеры позиции / поворота / масштаба
-    │   ├── TransformControls.module.css
-    │   ├── SliderRow.jsx        # Один ряд слайдера с числовым инпутом
-    │   └── SliderRow.module.css
-    └── utils/
-        ├── math.js              # Конвертация Эйлер <-> кватернион
-        └── config.js            # Хелперы работы с объектом конфига
+admin/src/
+├── App.jsx                  # Редактор: слайдеры трансформа + AR-превью
+├── main.jsx                 # Маршрутизатор (React Router v7)
+├── components/
+│   ├── ARPreview.jsx        # iframe с клиентом + postMessage
+│   ├── ModelPreview.jsx     # Миниатюра GLB-модели в каталоге
+│   ├── ProtectedRoute.jsx   # Обёртка для защищённых маршрутов
+│   ├── TransformControls.jsx
+│   └── SliderRow.jsx
+├── contexts/
+│   └── AuthContext.jsx      # JWT в cookie, axios defaults
+├── pages/
+│   ├── Catalog.jsx          # Список моделей, загрузка, удаление
+│   └── Login.jsx            # Форма входа
+└── utils/
+    ├── math.js              # Конвертация Эйлер <-> кватернион, логарифм масштаба
+    └── config.js            # Хелперы работы с объектом конфига
 ```
 
 ### `client/`
 
-8th Wall AR-опыт. Открывается конечным пользователем устройстве.
+8th Wall AR-опыт. Открывается конечным пользователем на устройстве.
 
 ```
-client/
-├── src/
-│   ├── index.html       # Точка входа: вся логика сцены в inline <script>
-│   └── .expanse.json    # Граф сцены 8th Wall (face mesh, якоря, камера)
-│   
-├── config/
-│   ├── webpack.config.js  # Сборка: HtmlWebpackPlugin подставляет API_URL
-│   └── ...
-└── external/            # Рантайм 8th Wall (runtime.js, xr.js) — не в git
+client/src/
+├── index.html       # Точка входа: вся логика сцены в inline <script>
+└── .expanse.json    # Граф сцены 8th Wall (face mesh, якоря, камера)
+```
+
+### `backend/`
+
+NestJS API. Хранит модели в S3, метаданные в PostgreSQL.
+
+```
+backend/src/
+├── app.controller.ts        # Маршруты /apiback/glasses
+├── app.service.ts           # Бизнес-логика
+├── entities/glasses.entity.ts
+├── dto/create-glasses.dto.ts
+├── common/S3/               # Сервис работы с S3
+└── modules/auth/            # JWT аутентификация (login, register)
 ```
 
 ---
 
 ## Запуск
 
-Зависимости устанавливаются из корня (npm workspaces):
+### Локальная разработка (без Docker)
+
+Установить зависимости (npm workspaces из корня):
 
 ```bash
 npm install
 ```
 
-| Команда | Что запускает |
+Поднять PostgreSQL и заполнить `backend/.env`, `admin/.env`, `client/.env` (см. раздел **Переменные окружения**).
+
+```bash
+# Каждая команда — в отдельном терминале
+npm run admin      # Vite dev-server на порту 5173
+npm run client     # webpack-dev-server на порту 8080
+cd backend && npm run start:dev   # NestJS на порту 3000
+```
+
+| Приложение | URL |
 |---|---|
-| `npm run admin` | Дев-сервер админки (Vite, с `--host`) |
-| `npm run client` | Дев-сервер клиента (webpack-dev-server) |
-| `npm run build:admin` | Продакшн-сборка админки |
-| `npm run build:client` | Продакшн-сборка клиента |
-| `npm run build:all` | Сборка обоих приложений |
+| Клиент | `http://localhost:8080/?modelId=<UUID>` |
+| Админка | `http://localhost:5173/` |
+| API | `http://localhost:3000/apiback/...` |
 
-### Переменные окружения
+### Docker Compose (продакшн)
 
-**admin** — файл `admin/.env`:
-```
-VITE_BASE_URL=https://your-backend.com/glasses
+```bash
+docker compose up -d
 ```
 
-**client** — файл `client/.env`:
+Запускает: admin, client, backend, postgres, nginx, certbot. Nginx слушает 80/443 и проксирует:
+
+| Путь | Сервис |
+|---|---|
+| `/` | client |
+| `/admin/` | admin |
+| `/apiback/` | backend |
+
+---
+
+## Переменные окружения
+
+### `admin/.env`
+
 ```
-API_URL=https://your-backend.com/glasses
+VITE_BASE_URL=http://localhost:3000/apiback
+VITE_CLIENT_URL=http://localhost:8080
+VITE_COOKIE_NAME=admin_token
+VITE_COOKIE_MAX_AGE=604800
 ```
 
-`API_URL` подставляется на этапе сборки через `HtmlWebpackPlugin` (`templateParameters`) в `index.html` как строка `BACKEND_URL`.
+| Переменная | Описание |
+|---|---|
+| `VITE_BASE_URL` | Базовый URL бэкенда (включая `/apiback`) |
+| `VITE_CLIENT_URL` | URL клиента для iframe в редакторе |
+| `VITE_COOKIE_NAME` | Имя cookie для хранения JWT |
+| `VITE_COOKIE_MAX_AGE` | Время жизни cookie в секундах |
+
+### `client/.env`
+
+```
+API_URL=http://localhost:3000/apiback/glasses
+```
+
+Встраивается в HTML на этапе сборки как `BACKEND_URL`.
+
+### `backend/.env`
+
+```
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=password
+DB_NAME=tsoy_glasses
+
+S3_BUCKET=your-bucket
+S3_REGION=your-region
+S3_ENDPOINT=https://s3.your-provider.com
+S3_ACCESS_KEY=your-key
+S3_SECRET_KEY=your-secret
+
+JWT_SECRET=your-secret-key
+```
 
 ---
 
 ## API бэкенда
 
-Оба приложения работают с одним REST API. Базовый путь — `/glasses`.
+Все маршруты с префиксом `/apiback`. Аутентификация эндпоинтов `/glasses` не требуется — достаточно JWT только для входа в UI.
+
+### Получить список всех моделей
+
+```
+GET /apiback/glasses
+```
+
+Ответ — массив объектов:
+```json
+[
+  {
+    "id": "<UUID>",
+    "name": "Название модели",
+    "position": [0, 0, 0],
+    "rotation": [0, 0, 0, 1],
+    "scale": [1, 1, 1]
+  }
+]
+```
 
 ### Получить модель по UUID
 
 ```
-GET /glasses/:uuid
+GET /apiback/glasses/:uuid
 ```
 
 Ответ:
 ```json
 {
   "dto": {
-    "position": "[0, 0, 0]",
-    "rotation": "[0, 0, 0, 1]",
-    "scale":    "[1, 1, 1]"
+    "name": "Название модели",
+    "position": [0, 0, 0],
+    "rotation": [0, 0, 0, 1],
+    "scale": [1, 1, 1]
   },
   "file": {
-    "base64": "<строка base64 .glb файла>"
+    "base64": "<строка base64 .glb файла>",
+    "contentType": "model/gltf-binary"
   }
 }
 ```
 
-- `dto` — трансформ модели (position/rotation/scale). Rotation хранится как кватернион `[x, y, z, w]`.
-- `file.base64` — сама 3D-модель в формате GLB, закодированная в base64.
+### Получить файл модели (поток)
+
+```
+GET /apiback/glasses/:uuid/model
+```
+
+Возвращает GLB-файл напрямую (StreamableFile, Content-Type: model/gltf-binary).
 
 ### Загрузить новую модель
 
 ```
-POST /glasses
+POST /apiback/glasses
 Content-Type: multipart/form-data
   model: <файл .glb>
+  name: <название модели>
 ```
 
-Ответ:
-```json
-{ "id": "<новый UUID>" }
-```
-
-Сервер сохраняет файл и возвращает UUID, по которому модель будет доступна.
+Ответ — объект созданной модели (с UUID).
 
 ### Обновить трансформ
 
 ```
-PATCH /glasses/:uuid
+PATCH /apiback/glasses/:uuid
 Content-Type: application/json
 {
+  "name": "Название модели",
   "position": [x, y, z],
   "rotation": [x, y, z, w],
-  "scale":    [x, y, z]
+  "scale": [x, y, z]
 }
+```
+
+### Удалить модель
+
+```
+DELETE /apiback/glasses/:uuid
+```
+
+Ответ: `{ "id": "<UUID>" }`. Удаляет запись из БД и файл из S3.
+
+### Аутентификация
+
+```
+POST /apiback/auth/login
+Content-Type: application/json
+{ "login": "admin", "password": "secret" }
+```
+
+Ответ: `{ "id": "<UUID>", "accessToken": "<JWT>" }`
+
+```
+POST /apiback/auth/register
+Content-Type: application/json
+{ "login": "admin", "password": "secret" }
 ```
 
 ---
 
 ## Загрузка модели по UUID
 
-Оба приложения не хранят модели локально. Загрузка всегда происходит по UUID, который передаётся в URL как query-параметр `?modelId=<UUID>`.
-
 ### Клиент
 
 ```
-https://client.example.com/?modelId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+https://client.example.com/?modelId=<UUID>
 ```
 
-1. `index.html` читает `MODEL_ID` из `URLSearchParams`.
-2. Отправляет `GET /glasses/<MODEL_ID>` на бэкенд.
-3. Из ответа берёт `dto` (трансформ) и `file.base64` (GLB-файл).
-4. Декодирует base64 в `ArrayBuffer`, создаёт `Blob URL` и загружает через `THREE.GLTFLoader`.
-5. Модель прикрепляется к face anchor (объект `Face Mesh` из `.expanse.json`).
+1. Читает `modelId` из URL.
+2. Запрашивает `GET /apiback/glasses/<modelId>`.
+3. Декодирует `file.base64` → `ArrayBuffer` → `Blob URL`, загружает через `THREE.GLTFLoader`.
+4. Прикрепляет модель к face anchor из `.expanse.json`.
 
-### Админка
+### Редактор (Admin)
 
 ```
-https://admin.example.com/?modelId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+https://admin.example.com/editor?modelId=<UUID>
 ```
 
-1. `App.jsx` читает `modelId` из `URLSearchParams`.
-2. Отправляет `GET /glasses/<modelId>` — получает трансформ и base64 модели.
-3. Инициализирует слайдеры трансформа текущими значениями с сервера.
-4. Передаёт base64 в компонент `ARPreview` → тот отправляет его в iframe клиента через `postMessage`.
-5. При изменении слайдеров — обновляет transform в состоянии и сразу шлёт его в iframe.
-6. Кнопка «Сохранить положение» отправляет `PATCH /glasses/<modelId>` с текущим трансформом.
+1. Читает `modelId` из URL.
+2. Запрашивает `GET /apiback/glasses/<modelId>`.
+3. Заполняет слайдеры трансформа, передаёт `base64` в `ARPreview` (iframe).
+4. При движении слайдеров — отправляет трансформ в iframe через `postMessage`.
+5. Кнопка «Сохранить положение» — `PATCH /apiback/glasses/<modelId>`.
 
 ---
 
-## Различия клиента и админки
+## Связь Редактора и Клиента (postMessage)
 
-| | Клиент | Админка |
+`ARPreview.jsx` встраивает клиент в `<iframe>`. Сообщения:
+
+| Тип | Данные | Действие клиента |
 |---|---|---|
-| **Аудитория** | Конечный пользователь | Разработчик / контент-менеджер |
-| **Стек** | Vanilla JS, 8th Wall XR, Three.js, webpack | React 18, Vite, Axios |
-| **Сборка** | `webpack` → `dist/bundle.js` + `index.html` | `vite build` |
-| **AR-движок** | 8th Wall (face tracking, XR8) |
-| **Роль** | Рендерит модель на лице пользователя | Позволяет настроить позицию/поворот/масштаб модели |
-| **Загрузка модели** | `fetch` → base64 → `GLTFLoader` | Получает base64, передаёт в iframe через `postMessage` |
-| **Запись данных** | Только читает с сервера | Читает и записывает (`PATCH`) |
-| **Загрузка новых моделей** | Нет | Есть (`POST /glasses`, drag & drop .glb) |
-
-### Связь админки и клиента в реальном времени
-
-`ARPreview.jsx` встраивает клиент в `<iframe>`. Все изменения передаются через `window.postMessage`:
-
-| Тип сообщения | Данные | Что делает клиент |
-|---|---|---|
-| `adminSetTransform` | `position`, `rotation`, `scale`, `hidden` | Мгновенно применяет трансформ к модели в сцене |
-| `adminLoadModel` | `base64` | Декодирует и загружает новую GLB-модель |
-
-Клиент слушает эти сообщения в обработчике `window.addEventListener('message', ...)` в `index.html`.
+| `adminSetTransform` | `position`, `rotation`, `scale`, `hidden` | Применяет трансформ к модели |
+| `adminLoadModel` | `base64` | Загружает новую GLB-модель |
 
 ---
 
 ## Сцена 8th Wall (`.expanse.json`)
 
-Граф сцены описывает объекты, которые 8th Wall рендерит при запуске клиента:
-
 | Объект | Назначение |
 |---|---|
-| `Face` | Корневой face anchor (отслеживает лицо) |
-| `Face Mesh` | Геометрия лица с материалом-хайдером (скрывает реальное лицо) |
-| `noseBridge` | Конус-хайдер для переносицы (скрывает нос под оправой) |
+| `Face` | Корневой face anchor |
+| `Face Mesh` | Геометрия лица с материалом-хайдером |
+| `noseBridge` | Конус-хайдер для переносицы |
 | `leftCanal` / `rightCanal` | Плоскости-хайдеры для ушных каналов |
 | `Camera (2)` | Перспективная камера с face XR режимом |
-| `Directional Light` | Направленный источник света |
+| `Directional Light` | Направленный свет |
 
-Загружаемая GLB-модель (очки) прикрепляется к `faceMeshObj.parent` динамически через `THREE.js`.
+GLB-модель прикрепляется к `faceMeshObj.parent` динамически через Three.js.
+
+---
+
+## Различия клиента и редактора
+
+| | Клиент | Редактор (Admin) |
+|---|---|---|
+| **Аудитория** | Конечный пользователь | Контент-менеджер |
+| **Стек** | Vanilla JS, 8th Wall XR, Three.js, webpack | React 18, Vite, React Router v7, Axios |
+| **AR-движок** | 8th Wall (face tracking, XR8) | — (iframe с клиентом) |
+| **Роль** | Рендерит модель на лице | Редактирует трансформ модели |
+| **Загрузка модели** | `fetch` → base64 → `GLTFLoader` | Получает base64, передаёт в iframe |
+| **Запись данных** | Только читает | `PATCH` трансформа |
+| **Авторизация** | Нет | JWT (cookie) |
