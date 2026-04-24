@@ -5,6 +5,8 @@ import { useAuth } from "../contexts/AuthContext";
 import ModelPreview from "../components/ModelPreview";
 import styles from "./Catalog.module.css";
 
+const PAGE_SIZE = 15;
+
 function progressBar(pct) {
   const filled = Math.round(pct / 10);
   return "█".repeat(filled) + "░".repeat(10 - filled) + ` ${pct}%`;
@@ -40,6 +42,10 @@ export default function Catalog() {
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadName, setUploadName] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const { entries: logs, add: addLog, update: updateLog } = useLog();
   const fileRef = useRef(null);
   const logRef = useRef(null);
@@ -48,23 +54,35 @@ export default function Catalog() {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [logs]);
 
+  // Debounce search input → reset to page 1
   useEffect(() => {
-    fetchModels();
-  }, []);
+    const t = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
 
-  async function fetchModels() {
+  const fetchModels = useCallback(async () => {
     setLoading(true);
     try {
+      const params = new URLSearchParams({ page, limit: PAGE_SIZE });
+      if (search.trim()) params.set("search", search.trim());
       const { data } = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/glasses`,
+        `${import.meta.env.VITE_BASE_URL}/glasses?${params}`,
       );
-      setModels(Array.isArray(data) ? data : []);
+      setModels(Array.isArray(data.data) ? data.data : []);
+      setTotalPages(data.totalPages ?? 1);
     } catch (e) {
       addLog(`Ошибка загрузки каталога: ${e.message}`, "err");
     } finally {
       setLoading(false);
     }
-  }
+  }, [search, page, addLog]);
+
+  useEffect(() => {
+    fetchModels();
+  }, [fetchModels]);
 
   function handleDrop(e) {
     e.preventDefault();
@@ -84,7 +102,9 @@ export default function Catalog() {
     if (!window.confirm(`Удалить модель "${label}"?`)) return;
     const logId = addLog(`Удаление "${label}"…`);
     try {
-      await axios.delete(`${import.meta.env.VITE_BASE_URL}/glasses/${model.id}`);
+      await axios.delete(
+        `${import.meta.env.VITE_BASE_URL}/glasses/${model.id}`,
+      );
       updateLog(logId, `✓ "${label}" удалён`, "ok");
       await fetchModels();
     } catch (e) {
@@ -205,12 +225,23 @@ export default function Catalog() {
           )}
         </div>
 
+        {/* Search */}
+        <input
+          className={styles.searchInput}
+          type="text"
+          placeholder="Поиск по названию..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+
         {/* Models grid */}
         {loading ? (
           <div className={styles.empty}>Загрузка...</div>
         ) : models.length === 0 ? (
           <div className={styles.empty}>
-            Файлы не найдены. Загрузите первый.
+            {search
+              ? "Ничего не найдено."
+              : "Файлы не найдены. Загрузите первый."}
           </div>
         ) : (
           <div className={styles.grid}>
@@ -245,7 +276,16 @@ export default function Catalog() {
                     title="Удалить модель"
                     onClick={() => deleteModel(model)}
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <polyline points="3 6 5 6 21 6" />
                       <path d="M19 6l-1 14H6L5 6" />
                       <path d="M10 11v6M14 11v6" />
@@ -255,6 +295,29 @@ export default function Catalog() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className={styles.pagination}>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              ←
+            </button>
+            <span className={styles.pageInfo}>
+              {page} / {totalPages}
+            </span>
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              →
+            </button>
           </div>
         )}
       </div>

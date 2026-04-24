@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateGlassesDto } from './dto/create-glasses.dto';
+import { PatchGlassesDto } from './dto/patch-glasses.dto';
 import type { Multer } from 'multer';
 import { v4 as uuid } from 'uuid';
 import { S3Service } from './common/S3/s3.service';
 import { GlassesEntity } from './entities/glasses.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -15,8 +16,15 @@ export class AppService {
     private readonly glassesRepository: Repository<GlassesEntity>,
   ) {}
 
-  async getGlasses() {
-    return this.glassesRepository.find();
+  async getGlasses(search?: string, page: number = 1, limit: number = 15) {
+    const where = search?.trim() ? { name: ILike(`%${search.trim()}%`) } : {};
+    const [data, total] = await this.glassesRepository.findAndCount({
+      where,
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
   async getGlassesById(id: string) {
@@ -100,47 +108,38 @@ export class AppService {
     return { id };
   }
 
-  // Обновляет все параметры очков: name/position/rotation/scale
-  async patchGlassesById(id: string, dto: CreateGlassesDto) {
+  async patchGlassesById(id: string, dto: PatchGlassesDto) {
     const glasses = await this.glassesRepository.findOneBy({ id });
     if (!glasses) throw new NotFoundException('Glasses not found');
-    if (!dto?.name || typeof dto.name !== 'string' || !dto.name.trim()) {
-      throw new BadRequestException('Name is required');
+
+    if (dto?.name !== undefined) {
+      glasses.name = dto.name.trim();
     }
-    const name = dto.name.trim();
 
-    const position: [number, number, number] =
-      Array.isArray(dto?.position) && dto.position.length === 3
-        ? [
-            Number(dto.position[0]) || 0,
-            Number(dto.position[1]) || 0,
-            Number(dto.position[2]) || 0,
-          ]
-        : [0, 0, 0];
+    if (Array.isArray(dto?.position) && dto.position.length === 3) {
+      glasses.position = [
+        Number(dto.position[0]) || 0,
+        Number(dto.position[1]) || 0,
+        Number(dto.position[2]) || 0,
+      ];
+    }
 
-    const rotation: [number, number, number, number] =
-      Array.isArray(dto?.rotation) && dto.rotation.length === 4
-        ? [
-            Number(dto.rotation[0]) || 0,
-            Number(dto.rotation[1]) || 0,
-            Number(dto.rotation[2]) || 0,
-            Number(dto.rotation[3]) || 0,
-          ]
-        : [0, 0, 0, 0];
+    if (Array.isArray(dto?.rotation) && dto.rotation.length === 4) {
+      glasses.rotation = [
+        Number(dto.rotation[0]) || 0,
+        Number(dto.rotation[1]) || 0,
+        Number(dto.rotation[2]) || 0,
+        Number(dto.rotation[3]) || 0,
+      ];
+    }
 
-    const scale: [number, number, number] =
-      Array.isArray(dto?.scale) && dto.scale.length === 3
-        ? [
-            Number(dto.scale[0]) || 0,
-            Number(dto.scale[1]) || 0,
-            Number(dto.scale[2]) || 0,
-          ]
-        : [1, 1, 1];
-
-    glasses.name = name;
-    glasses.position = position;
-    glasses.rotation = rotation;
-    glasses.scale = scale;
+    if (Array.isArray(dto?.scale) && dto.scale.length === 3) {
+      glasses.scale = [
+        Number(dto.scale[0]) || 0,
+        Number(dto.scale[1]) || 0,
+        Number(dto.scale[2]) || 0,
+      ];
+    }
 
     await this.glassesRepository.save(glasses);
     return glasses;

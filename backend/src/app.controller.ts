@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreateGlassesDto } from './dto/create-glasses.dto';
+import { PatchGlassesDto } from './dto/patch-glasses.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Multer } from 'multer';
 
@@ -9,8 +10,16 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  async getGlasses() {
-    return this.appService.getGlasses();
+  async getGlasses(
+    @Query('search') search?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.appService.getGlasses(
+      search,
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 15,
+    );
   }
 
   @Get(':id')
@@ -37,11 +46,10 @@ export class AppController {
     return this.appService.addGlasses(glassesDto, model);
   }
 
-  // Обновляет все параметры очков (position/rotation/scale) по id
   @Patch(':id')
   async patchGlassesById(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: CreateGlassesDto,
+    @Body() dto: PatchGlassesDto,
   ) {
     return this.appService.patchGlassesById(id, dto);
   }

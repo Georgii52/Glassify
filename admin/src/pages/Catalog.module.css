@@ -24,6 +24,25 @@
   gap: 8px;
 }
 
+.searchInput {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  width: 15%;
+  transition: border-color 0.15s;
+}
+.searchInput:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.searchInput::placeholder {
+  color: var(--dim);
+}
+
 .logoIcon {
   font-size: 18px;
 }
@@ -133,7 +152,7 @@
 /* ── Grid ── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
 }
 
@@ -153,7 +172,7 @@
 
 .cardPreview {
   background: var(--surface);
-  height: 120px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -233,7 +252,9 @@
   border: 1px solid var(--err, #e05c5c);
   border-radius: var(--radius);
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
   padding: 0;
 }
 .btnDelete:hover {
@@ -292,4 +313,39 @@
   text-align: center;
   padding: 40px 0;
   font-size: 14px;
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 0 4px;
+}
+
+.pageBtn {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.pageBtn:hover:not(:disabled) {
+  opacity: 0.82;
+}
+.pageBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 13px;
+  color: var(--dim);
+  min-width: 50px;
+  text-align: center;
 }
