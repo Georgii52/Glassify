@@ -5,7 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import ModelPreview from "../components/ModelPreview";
 import styles from "./Catalog.module.css";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 9;
 
 function progressBar(pct) {
   const filled = Math.round(pct / 10);
@@ -46,6 +46,7 @@ export default function Catalog() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [sort, setSort] = useState("date_desc");
   const { entries: logs, add: addLog, update: updateLog } = useLog();
   const fileRef = useRef(null);
   const logRef = useRef(null);
@@ -66,7 +67,7 @@ export default function Catalog() {
   const fetchModels = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page, limit: PAGE_SIZE });
+      const params = new URLSearchParams({ page, limit: PAGE_SIZE, sort });
       if (search.trim()) params.set("search", search.trim());
       const { data } = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/glasses?${params}`,
@@ -78,7 +79,7 @@ export default function Catalog() {
     } finally {
       setLoading(false);
     }
-  }, [search, page, addLog]);
+  }, [search, page, sort, addLog]);
 
   useEffect(() => {
     fetchModels();
@@ -225,14 +226,28 @@ export default function Catalog() {
           )}
         </div>
 
-        {/* Search */}
-        <input
-          className={styles.searchInput}
-          type="text"
-          placeholder="Поиск по названию..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-        />
+        {/* Controls: search + sort */}
+        <div className={styles.controls}>
+          <input
+            className={styles.searchInput}
+            type="text"
+            placeholder="Поиск по названию..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+          <select
+            className={styles.sortSelect}
+            value={sort}
+            onChange={(e) => {
+              setSort(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="date_desc">По дате (новые)</option>
+            <option value="date_asc">По дате (старые)</option>
+            <option value="name_asc">По алфавиту (А→Я)</option>
+          </select>
+        </div>
 
         {/* Models grid */}
         {loading ? (

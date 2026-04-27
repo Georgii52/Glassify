@@ -24,6 +24,12 @@
   gap: 8px;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .searchInput {
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -32,7 +38,8 @@
   color: var(--text);
   font-size: 13px;
   font-family: inherit;
-  width: 15%;
+  flex: 1;
+  min-width: 0;
   transition: border-color 0.15s;
 }
 .searchInput:focus {
@@ -41,6 +48,28 @@
 }
 .searchInput::placeholder {
   color: var(--dim);
+}
+
+.sortSelect {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+  appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.sortSelect:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .logoIcon {
@@ -152,7 +181,7 @@
 /* ── Grid ── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
 }
 
@@ -172,7 +201,7 @@
 
 .cardPreview {
   background: var(--surface);
-  height: 160px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -187,7 +216,7 @@
 }
 
 .cardName {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text);
   word-break: break-word;
@@ -200,11 +229,9 @@
 }
 
 .cardPreviewUrl {
-  font-size: 10px;
+  font-size: 14px;
   color: var(--accent);
   font-family: "SF Mono", "Fira Code", monospace;
-  white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
   text-decoration: none;
   margin-top: 2px;
