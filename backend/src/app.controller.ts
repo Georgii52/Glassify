@@ -14,11 +14,13 @@ export class AppController {
     @Query('search') search?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.appService.getGlasses(
       search,
       page ? parseInt(page, 10) : 1,
-      limit ? parseInt(limit, 10) : 15,
+      limit ? parseInt(limit, 10) : 9,
+      sort,
     );
   }
 

@@ -16,11 +16,17 @@ export class AppService {
     private readonly glassesRepository: Repository<GlassesEntity>,
   ) {}
 
-  async getGlasses(search?: string, page: number = 1, limit: number = 15) {
+  async getGlasses(search?: string, page: number = 1, limit: number = 9, sort: string = 'date_desc') {
     const where = search?.trim() ? { name: ILike(`%${search.trim()}%`) } : {};
+    const order =
+      sort === 'name_asc'
+        ? { name: 'ASC' as const }
+        : sort === 'date_asc'
+          ? { createdAt: 'ASC' as const }
+          : { createdAt: 'DESC' as const };
     const [data, total] = await this.glassesRepository.findAndCount({
       where,
-      order: { createdAt: 'DESC' },
+      order,
       skip: (page - 1) * limit,
       take: limit,
     });
